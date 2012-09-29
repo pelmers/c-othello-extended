@@ -14,6 +14,7 @@ void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
 void print_board(int *board, int side);
+void print_victor(int *board);
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
 int legal_move(int *board, int move, int side, int *flips);
@@ -200,6 +201,20 @@ void print_board(int *board, int side) {
             find_score(board,BLACK), find_score(board,WHITE));
 }
 
+void print_victor(int *board) {
+    int white_score = find_score(board, WHITE);
+    int black_score = find_score(board, BLACK);
+    if (white_score > black_score)
+        printf("White has won with a score of %d to %d.\n", white_score,
+                black_score);
+    else if (black_score > white_score)
+        printf("Black has won with a score of %d to %d.\n", black_score,
+                white_score);
+    else
+        printf("The game is tied with a score of %d to %d.\n", white_score,
+                black_score);
+}
+
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_source, int *flips) {
     int move;
@@ -231,38 +246,21 @@ int play_turn(int *board, int *side, int *unplayed, int show,
 
 
 int main () {
-    int i;
-    int board[100];
-    int flips[24];
-    int side = BLACK;
     int black_source = HUMAN;
     int white_source = HUMAN;
-    int unplayed = 0;
     int show = 1;
-    default_board(board);
-    int playing = 1;
 
-    //print_board(board,current_side);
-    //int move = get_human_move(board, current_side);
-    //legal_move(board, move, current_side, flips);
-    //make_move(board, move, current_side, flips);
-    //print_board(board,current_side);
-    
+    int board[100];
+    default_board(board);
+    int flips[24];
+    int side = BLACK;
+    int playing = 1;
+    int unplayed = 0;
+
     while (playing) {
-        playing = play_turn(board, &side, &unplayed, 1, black_source, 
+        playing = play_turn(board, &side, &unplayed, show, black_source, 
                 white_source, flips);
     }
-    int white_score = find_score(board, WHITE);
-    int black_score = find_score(board, BLACK);
-    if (white_score > black_score)
-        printf("White has won with a score of %d to %d.\n", white_score,
-                black_score);
-    else if (black_score > white_score)
-        printf("Black has won with a score of %d to %d.\n", black_score,
-                white_score);
-    else
-        printf("The game is tied with a score of %d to %d.\n", white_score,
-                black_score);
-
+    print_victor(board);
     return 0;
 }
