@@ -1,2 +1,3 @@
+CC = gcc
 all:
-	gcc c-othello.c -o Othello
+	$(CC) c-othello.c -o Othello
