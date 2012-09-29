@@ -8,8 +8,10 @@
 #define BORDER 2
 #define MAX_SCORE 9999
 #define MIN_SCORE -9999
+
 #define HUMAN 0
 
+int get_source(int side);
 void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
@@ -24,6 +26,7 @@ int find_score(int *board, int side);
 int get_human_move(int *board, int side);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
+int main();
 
 const int weights[100] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -39,6 +42,23 @@ const int weights[100] = {
 };
 
 const int directions[8] = {1,-1, 10,-10, 9,-9, 11,-11};
+
+int get_source(int side) {
+    int choice;
+    char input[16];
+    printf("\
+1) Human\n\
+2) Random\n\
+3) Shallow searcher (1-ply)\n\
+4) Brute minimax (3-ply)\n\
+5) Alphabeta pruner (3-ply)\n");
+    if (side == BLACK)
+        printf("Source for black player: ");
+    else printf("Source for white player: ");
+    scanf("%s",input);
+    choice = atoi(input);
+    return choice-1;
+}
 
 void reset_flips(int *flips) {
     int i;
@@ -246,8 +266,8 @@ int play_turn(int *board, int *side, int *unplayed, int show,
 
 
 int main () {
-    int black_source = HUMAN;
-    int white_source = HUMAN;
+    int black_source = get_source(BLACK);
+    int white_source = get_source(WHITE);
     int show = 1;
 
     int board[100];
