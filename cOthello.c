@@ -205,12 +205,13 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     int move;
     if (show != 0)
         print_board(board, *side);
-    if (test_end(board, *unplayed) == 1)
-        return 0;
     if (test_possible_moves(board, *side, flips) == 0) {
        *unplayed += 1;
        *side *= -1;
+       return 1;
     }
+    if (test_end(board, *unplayed) == 1)
+        return 0;
     if (*side == BLACK) {
         if (black_source == HUMAN)
             move = get_human_move(board, *side);
@@ -251,6 +252,17 @@ int main () {
         playing = play_turn(board, &side, &unplayed, 1, black_source, 
                 white_source, flips);
     }
+    int white_score = find_score(board, WHITE);
+    int black_score = find_score(board, BLACK);
+    if (white_score > black_score)
+        printf("White has won with a score of %d to %d.\n", white_score,
+                black_score);
+    else if (black_score > white_score)
+        printf("Black has won with a score of %d to %d.\n", black_score,
+                white_score);
+    else
+        printf("The game is tied with a score of %d to %d.\n", white_score,
+                black_score);
 
     return 0;
 }
