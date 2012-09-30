@@ -277,15 +277,17 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     int move;
     if (show != 0)
         print_board(board, *side);
+    if (test_end(board, *unplayed) == 1)
+        return 0;
     if (test_possible_moves(board, *side, flips) == 0) {
        *unplayed += 1;
        *side *= -1;
+       return 1;
     }
-    if (test_end(board, *unplayed) == 1)
-        return 0;
     if (*side == BLACK) {
         move = get_move(board, *side, black_source);
         legal_move(board, move, *side, flips);
+
         make_move(board,move,*side,flips);
     }
     else if (*side == WHITE) {
@@ -335,7 +337,6 @@ int main () {
     else {
         start = clock();
         for(i=0;i<simulate;i++) {
-            printf("%d\n",i);
             default_board(board);
             side = BLACK;
             unplayed = 0;
