@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <memory.h>
 
 // Peter Elmers, September 2012
 
@@ -14,6 +15,14 @@
 #define HUMAN 0
 #define RANDOM 1
 #define SHALLOW 2
+#define MINIMAX 3
+#define ALPHABETA 4
+
+#define S_DEPTH 3
+#define END_DEPTH 8
+
+#define max(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
+#define min(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
 
 int get_source(int side);
 int get_simulate_number();
@@ -69,7 +78,6 @@ int get_source(int side) {
     else printf("Source for white player: ");
     scanf("%s",input);
     choice = atoi(input);
-    printf("\n");
     return choice-1;
 }
 
@@ -94,9 +102,10 @@ void reset_flips(int *flips) {
 }
 
 void copy_board(int *oldboard, int *newboard) {
-    int i;
-    for (i=0; i<100; i++)
-        newboard[i] = oldboard[i];
+    memcpy(newboard, oldboard, 100*sizeof(int));
+    //int i;
+    //for (i=0;i<100;i++)
+    //    newboard[i] = oldboard[i];
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
@@ -247,13 +256,13 @@ int get_shallow_move(int *board, int side) {
     int score;
     int flips[24];
     int old_board[100];
-    int best_score = MAX_SCORE-1;
+    int best_score = MIN_SCORE-1;
     copy_board(board, old_board);
     for (i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1) {
             make_move(board,i,side,flips);
             score = evaluate_board(board, side, 0);
-            if (score > best_score || best_score == (MAX_SCORE-1)) {
+            if (score > best_score) {
                 best_score = score;
                 move = i;
             }
@@ -374,7 +383,7 @@ void progress_bar(int width, double percent) {
     printf("\r[ ");
     for(i=0;i < (int)filled; i++)
         printf("#");
-    for(i=i;i < width; i++)
+    for(i=i;i < (width-1); i++)
         printf("-");
     printf(" ] %.0f%%", percent);
 }
