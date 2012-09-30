@@ -286,7 +286,7 @@ int get_shallow_move(int *board, int side) {
     int score;
     int flips[24];
     int old_board[100];
-    int best_score = MIN_SCORE-1;
+    int best_score = MIN_SCORE;
     copy_board(board, old_board);
     for (i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1) {
@@ -307,7 +307,7 @@ int maximize(int *board, int side, int unplayed, int ply) {
     int old_board[100];
     int flips[24];
     int i;
-    int score = MIN_SCORE - 1;
+    int score = MIN_SCORE;
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
@@ -325,7 +325,7 @@ int minimize(int *board, int side, int unplayed, int ply) {
     int old_board[100];
     int flips[24];
     int i;
-    int score = MAX_SCORE + 1;
+    int score = MAX_SCORE;
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
@@ -345,7 +345,7 @@ int get_minimax_move(int *board, int side, int unplayed, int ply) {
     int best_move;
     int flips[24];
     int old_board[100];
-    int best_score = MIN_SCORE - 1;
+    int best_score = MIN_SCORE-2;
     copy_board(board, old_board);
     for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
@@ -405,14 +405,14 @@ int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
     int best_move;
     int flips[24];
     int old_board[100];
-    int best_score = MIN_SCORE - 1;
+    int best_score = MIN_SCORE-1;
     copy_board(board, old_board);
     for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
         score = ab_minimize(board, -side, unplayed, ply,
-                MIN_SCORE-1,MAX_SCORE+1);
+                best_score,MAX_SCORE+1);
         copy_board(old_board, board);
         if (score > best_score) {
             best_score = score;
@@ -639,7 +639,7 @@ int main () {
                 ((double)wins_b/(double)simulate*100),
                 ((double)wins_w/(double)simulate*100),
                 ((double)draws/(double)simulate*100));
-        printf("Simulated lasted %.3f seconds, %.3f seconds per game.\n",
+        printf("Simulated lasted %.3f seconds, %.4f seconds per game.\n",
                 elapsed, elapsed/(double)simulate);
     }
     return 0;
