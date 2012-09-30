@@ -13,12 +13,15 @@
 
 #define HUMAN 0
 #define RANDOM 1
+#define SHALLOW 2
 
 int get_source(int side);
 int get_simulate_number();
+int get_randomize();
 void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
+void copy_board(int *oldboard, int *newboard);
 void print_board(int *board, int side);
 void print_victor(int *board);
 void to_flip(int *board, int move, int side, int *flips);
@@ -30,6 +33,7 @@ int find_score(int *board, int side);
 int evaluate_board(int *board, int side, int unplayed);
 int get_human_move(int *board, int side);
 int get_random_move(int *board, int side);
+int get_shallow_move(int *board, int side);
 int get_move(int *board, int side, int source);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
@@ -76,10 +80,23 @@ int get_simulate_number() {
     return atoi(input);
 }
 
+int get_randomize() {
+    char input[16];
+    printf("Do you want to randomize game starts? (1/0 for yes/no) ");
+    scanf("%s",input);
+    return atoi(input);
+}
+
 void reset_flips(int *flips) {
     int i;
     for (i=0;i<24;i++)
         flips[i] = 0;
+}
+
+void copy_board(int *oldboard, int *newboard) {
+    int i;
+    for (i=0; i<100; i++)
+        newboard[i] = oldboard[i];
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
@@ -224,6 +241,28 @@ int get_random_move(int *board, int side) {
     return move;
 }
 
+int get_shallow_move(int *board, int side) {
+    int i;
+    int move;
+    int score;
+    int flips[24];
+    int old_board[100];
+    int best_score = MAX_SCORE-1;
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board,i,side,flips) == 1) {
+            make_move(board,i,side,flips);
+            score = evaluate_board(board, side, 0);
+            if (score > best_score || best_score == (MAX_SCORE-1)) {
+                best_score = score;
+                move = i;
+            }
+            copy_board(old_board, board);
+        }
+    }
+    return move;
+}
+
 
 void empty_board(int *board) {
     int i;
@@ -294,6 +333,8 @@ int get_move(int *board, int side, int source) {
         return get_human_move(board, side);
     if (source == RANDOM)
         return get_random_move(board, side);
+    if (source == SHALLOW)
+        return get_shallow_move(board, side);
     return 0;
 }
 
@@ -345,6 +386,7 @@ int main () {
     clock_t end;
     double elapsed;
     int playing;
+    int turn_number;
     int score_w;
     int score_b;
     int wins_w = 0;
@@ -356,18 +398,25 @@ int main () {
     int white_source = get_source(WHITE);
     srand(time(NULL));
     int simulate = 0;
+    int randomize = 0;
     int side = BLACK;
     int unplayed = 0;
-    if (black_source != HUMAN && white_source != HUMAN)
+    if (black_source != HUMAN && white_source != HUMAN) {
         simulate = get_simulate_number();
+        if (black_source != RANDOM || white_source != RANDOM) {
+            randomize = get_randomize();
+        }
+    }
 
     if (simulate < 2) {
         default_board(board);
         playing = 1;
+        turn_number = 0;
 
         while (playing) {
             playing = play_turn(board, &side, &unplayed, 1, black_source, 
                     white_source, flips);
+            turn_number++;
         }
         print_victor(board);
     }
@@ -379,10 +428,18 @@ int main () {
             default_board(board);
             side = BLACK;
             unplayed = 0;
+            turn_number = 0;
             playing = 1;
             while (playing) {
-                playing = play_turn(board, &side, &unplayed, 0,
-                        black_source, white_source, flips);
+                if (randomize != 0 && turn_number <= 10) {
+                    playing = play_turn(board, &side, &unplayed, 0,
+                            RANDOM, RANDOM, flips);
+                }
+                else {
+                    playing = play_turn(board, &side, &unplayed, 0,
+                            black_source, white_source, flips);
+                }
+                turn_number++;
             }
             score_w = find_score(board,WHITE);
             score_b = find_score(board,BLACK);
