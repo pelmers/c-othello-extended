@@ -30,6 +30,7 @@ int get_random_move(int *board, int side);
 int get_move(int *board, int side, int source);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
+void progress_bar(int width, double percent);
 int main();
 
 const int weights[100] = {
@@ -287,7 +288,6 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     if (*side == BLACK) {
         move = get_move(board, *side, black_source);
         legal_move(board, move, *side, flips);
-
         make_move(board,move,*side,flips);
     }
     else if (*side == WHITE) {
@@ -298,6 +298,19 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     *side *= -1;
     *unplayed = 0;
     return 1;
+}
+
+void progress_bar(int width, double percent) {
+    double filled;
+    int i = 0;
+    width -= 9;
+    filled = (double)width*percent/100.0;
+    printf("\r[ ");
+    for(i=0;i < (int)filled; i++)
+        printf("#");
+    for(i=i;i < width; i++)
+        printf("-");
+    printf(" ] %.0f%%", percent);
 }
 
 
@@ -337,6 +350,7 @@ int main () {
     else {
         start = clock();
         for(i=0;i<simulate;i++) {
+            progress_bar(80,(double)i/(double)simulate*100.0);
             default_board(board);
             side = BLACK;
             unplayed = 0;
@@ -356,7 +370,7 @@ int main () {
         }
         end = clock();
         elapsed = (end - start)/(double)CLOCKS_PER_SEC;
-        printf("Black %.2f\%\nWhite %.2f\%\nDraw %.2f\%\n",
+        printf("\nBlack %.2f\%\nWhite %.2f\%\nDraw %.2f\%\n",
                 ((double)wins_b/(double)simulate*100),
                 ((double)wins_w/(double)simulate*100),
                 ((double)draws/(double)simulate*100));
