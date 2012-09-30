@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h> 
 #include <time.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -43,7 +43,10 @@ int evaluate_board(int *board, int side, int unplayed);
 int get_human_move(int *board, int side);
 int get_random_move(int *board, int side);
 int get_shallow_move(int *board, int side);
-int get_move(int *board, int side, int source);
+int maximize(int *board, int side, int unplayed, int ply);
+int minimize(int *board, int side, int unplayed, int ply);
+int get_minimax_move(int *board, int side, int unplayed, int ply);
+int get_move(int *board, int side, int source, int unplayed);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
 void progress_bar(int width, double percent);
@@ -96,9 +99,33 @@ int get_randomize() {
 }
 
 void reset_flips(int *flips) {
-    int i;
-    for (i=0;i<24;i++)
-        flips[i] = 0;
+    flips[0] = 0;
+    flips[1] = 0;
+    flips[2] = 0;
+    flips[3] = 0;
+    flips[4] = 0;
+    flips[5] = 0;
+    flips[6] = 0;
+    flips[7] = 0;
+    flips[8] = 0;
+    flips[9] = 0;
+    flips[10] = 0;
+    flips[11] = 0;
+    flips[12] = 0;
+    flips[13] = 0;
+    flips[14] = 0;
+    flips[15] = 0;
+    flips[16] = 0;
+    flips[17] = 0;
+    flips[18] = 0;
+    flips[19] = 0;
+    flips[20] = 0;
+    flips[21] = 0;
+    flips[22] = 0;
+    flips[23] = 0;
+    //int i;
+    //for (i=0;i<24;i++)
+    //    flips[i] = 0;
 }
 
 void copy_board(int *oldboard, int *newboard) {
@@ -213,7 +240,7 @@ int get_human_move(int *board, int side) {
     char input[32];
     int flips[24];
     printf("Possible moves: ");
-    for(i=10; i<90; i++) {
+    for(i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1)
             printf(" %d",i);
     }
@@ -240,7 +267,7 @@ int get_random_move(int *board, int side) {
     int counter = 0;
     int possible_moves[64];
     int flips[24];
-    for(i=10; i<90; i++) {
+    for(i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1) {
             possible_moves[counter] = i;
             counter++;
@@ -270,6 +297,65 @@ int get_shallow_move(int *board, int side) {
         }
     }
     return move;
+}
+
+
+int maximize(int *board, int side, int unplayed, int ply) {
+    int old_board[100];
+    int flips[24];
+    int i;
+    int score = MIN_SCORE - 1;
+    if (ply == 0 || test_end(board, unplayed) == 1)
+        return evaluate_board(board, side, unplayed);
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        score = max(score, minimize(board, -side, 0, ply-1));
+        copy_board(old_board, board);
+    }
+    return score;
+}
+
+int minimize(int *board, int side, int unplayed, int ply) {
+    int old_board[100];
+    int flips[24];
+    int i;
+    int score = MAX_SCORE + 1;
+    if (ply == 0 || test_end(board, unplayed) == 1)
+        return evaluate_board(board, side, unplayed);
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        score = min(score, maximize(board, -side, 0, ply-1));
+        copy_board(old_board, board);
+    }
+    return score;
+}
+
+int get_minimax_move(int *board, int side, int unplayed, int ply) {
+    int i;
+    int score;
+    int best_move;
+    int flips[24];
+    int old_board[100];
+    int best_score = MIN_SCORE - 1;
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        score = minimize(board, -side, unplayed, ply);
+        copy_board(old_board, board);
+        if (score > best_score) {
+            best_score = score;
+            best_move = i;
+        }
+    }
+    return best_move;
 }
 
 
@@ -337,13 +423,16 @@ void print_victor(int *board) {
                 black_score);
 }
 
-int get_move(int *board, int side, int source) {
+int get_move(int *board, int side, int source, int unplayed) {
     if (source == HUMAN)
         return get_human_move(board, side);
     if (source == RANDOM)
         return get_random_move(board, side);
     if (source == SHALLOW)
         return get_shallow_move(board, side);
+    if (source == MINIMAX) {
+        return get_minimax_move(board, side, unplayed, S_DEPTH);
+    }
     return 0;
 }
 
@@ -361,12 +450,12 @@ int play_turn(int *board, int *side, int *unplayed, int show,
        return 1;
     }
     if (*side == BLACK) {
-        move = get_move(board, *side, black_source);
+        move = get_move(board, *side, black_source, *unplayed);
         legal_move(board, move, *side, flips);
         make_move(board,move,*side,flips);
     }
     else if (*side == WHITE) {
-        move = get_move(board, *side, white_source);
+        move = get_move(board, *side, white_source, *unplayed);
         legal_move(board, move, *side, flips);
         make_move(board, move, *side, flips);
     }
@@ -406,6 +495,7 @@ int main () {
     int black_source = get_source(BLACK);
     int white_source = get_source(WHITE);
     srand(time(NULL));
+    setvbuf(stdout, NULL, _IONBF, 0);
     int simulate = 0;
     int randomize = 0;
     int side = BLACK;
