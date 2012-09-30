@@ -46,6 +46,9 @@ int get_shallow_move(int *board, int side);
 int maximize(int *board, int side, int unplayed, int ply);
 int minimize(int *board, int side, int unplayed, int ply);
 int get_minimax_move(int *board, int side, int unplayed, int ply);
+int ab_maximize(int *board, int side, int unplayed, int ply, int a, int b);
+int ab_minimize(int *board, int side, int unplayed, int ply, int a, int b);
+int get_alphabeta_move(int *board, int side, int unplayed, int ply);
 int get_move(int *board, int side, int source, int unplayed);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
@@ -358,6 +361,67 @@ int get_minimax_move(int *board, int side, int unplayed, int ply) {
     return best_move;
 }
 
+int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
+    int old_board[100];
+    int flips[24];
+    int i;
+    if (ply == 0 || test_end(board, unplayed) == 1)
+        return evaluate_board(board, side, unplayed);
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        a = max(a, ab_minimize(board, -side, 0, ply-1, a, b));
+        copy_board(old_board, board);
+        if (b <= a)
+            break;
+    }
+    return a;
+}
+
+int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
+    int old_board[100];
+    int flips[24];
+    int i;
+    if (ply == 0 || test_end(board, unplayed) == 1)
+        return evaluate_board(board, side, unplayed);
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        b = min(b, ab_maximize(board, -side, 0, ply-1, a, b));
+        copy_board(old_board, board);
+        if (b <= a)
+            break;
+    }
+    return b;
+}
+
+int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
+    int i;
+    int score;
+    int best_move;
+    int flips[24];
+    int old_board[100];
+    int best_score = MIN_SCORE - 1;
+    copy_board(board, old_board);
+    for (i=11; i<90; i++) {
+        if (legal_move(board, i, side, flips) == 0)
+            continue;
+        make_move(board, i, side, flips);
+        score = ab_minimize(board, -side, unplayed, ply,
+                MIN_SCORE-1,MAX_SCORE+1);
+        copy_board(old_board, board);
+        if (score > best_score) {
+            best_score = score;
+            best_move = i;
+        }
+    }
+    return best_move;
+}
+
 
 void empty_board(int *board) {
     int i;
@@ -431,9 +495,29 @@ int get_move(int *board, int side, int source, int unplayed) {
     if (source == SHALLOW)
         return get_shallow_move(board, side);
     if (source == MINIMAX) {
-        return get_minimax_move(board, side, unplayed, S_DEPTH);
+        int i;
+        int count = 0;
+        for (i=11;i<90;i++) {
+            if (board[i] == EMPTY)
+                count++;
+        }
+        if (count >= END_DEPTH)
+            return get_minimax_move(board, side, unplayed, S_DEPTH);
+        else
+            return get_minimax_move(board, side, unplayed, count);
     }
-    return 0;
+    if (source == ALPHABETA) {
+        int i;
+        int count = 0;
+        for (i=11;i<90;i++) {
+            if (board[i] == EMPTY)
+                count++;
+        }
+        if (count >= END_DEPTH)
+            return get_alphabeta_move(board, side, unplayed, S_DEPTH);
+        else
+            return get_alphabeta_move(board, side, unplayed, count);
+    }return 0;
 }
 
 
