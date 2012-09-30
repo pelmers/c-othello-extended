@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
+#include <stdlib.h>
 
 #define EMPTY 0
 #define WHITE 1
@@ -10,8 +10,10 @@
 #define MIN_SCORE -9999
 
 #define HUMAN 0
+#define RANDOM 1
 
 int get_source(int side);
+int get_simulate_number();
 void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
@@ -24,6 +26,8 @@ int test_possible_moves(int *board, int side, int *flips);
 int test_end(int *board, int unplayed);
 int find_score(int *board, int side);
 int get_human_move(int *board, int side);
+int get_random_move(int *board, int side);
+int get_move(int *board, int side, int source);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
 int main();
@@ -57,7 +61,15 @@ int get_source(int side) {
     else printf("Source for white player: ");
     scanf("%s",input);
     choice = atoi(input);
+    printf("\n");
     return choice-1;
+}
+
+int get_simulate_number() {
+    char input[16];
+    printf("Number of games to simulate: ");
+    scanf("%s",input);
+    return atoi(input);
 }
 
 void reset_flips(int *flips) {
@@ -171,6 +183,22 @@ int get_human_move(int *board, int side) {
     }
 }
 
+int get_random_move(int *board, int side) {
+    int i;
+    int move;
+    int counter = 0;
+    int possible_moves[64];
+    int flips[24];
+    for(i=10; i<90; i++) {
+        if (legal_move(board,i,side,flips) == 1) {
+            possible_moves[counter] = i;
+            counter++;
+        }
+    }
+    move = possible_moves[(rand() % counter)];
+    return move;
+}
+
 void empty_board(int *board) {
     int i;
     for (i=0; i<100; i++) {
@@ -235,6 +263,15 @@ void print_victor(int *board) {
                 black_score);
 }
 
+int get_move(int *board, int side, int source) {
+    if (source == HUMAN)
+        return get_human_move(board, side);
+    if (source == RANDOM)
+        return get_random_move(board, side);
+    return 0;
+}
+
+
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_source, int *flips) {
     int move;
@@ -243,19 +280,16 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     if (test_possible_moves(board, *side, flips) == 0) {
        *unplayed += 1;
        *side *= -1;
-       return 1;
     }
     if (test_end(board, *unplayed) == 1)
         return 0;
     if (*side == BLACK) {
-        if (black_source == HUMAN)
-            move = get_human_move(board, *side);
+        move = get_move(board, *side, black_source);
         legal_move(board, move, *side, flips);
         make_move(board,move,*side,flips);
     }
     else if (*side == WHITE) {
-        if (white_source == HUMAN)
-            move = get_human_move(board, *side);
+        move = get_move(board, *side, white_source);
         legal_move(board, move, *side, flips);
         make_move(board, move, *side, flips);
     }
@@ -266,21 +300,67 @@ int play_turn(int *board, int *side, int *unplayed, int show,
 
 
 int main () {
+    int i;
+    clock_t start;
+    clock_t end;
+    double elapsed;
+    int playing;
+    int score_w;
+    int score_b;
+    int wins_w = 0;
+    int wins_b = 0;
+    int draws = 0;
+    int board[100];
+    int flips[24];
     int black_source = get_source(BLACK);
     int white_source = get_source(WHITE);
-    int show = 1;
-
-    int board[100];
-    default_board(board);
-    int flips[24];
+    srand(time(NULL));
+    int simulate = 0;
     int side = BLACK;
-    int playing = 1;
     int unplayed = 0;
+    if (black_source != HUMAN && white_source != HUMAN)
+        simulate = get_simulate_number();
 
-    while (playing) {
-        playing = play_turn(board, &side, &unplayed, show, black_source, 
-                white_source, flips);
+    if (simulate < 2) {
+        default_board(board);
+        playing = 1;
+
+        while (playing) {
+            playing = play_turn(board, &side, &unplayed, 1, black_source, 
+                    white_source, flips);
+        }
+        print_victor(board);
     }
-    print_victor(board);
+
+    else {
+        start = clock();
+        for(i=0;i<simulate;i++) {
+            printf("%d\n",i);
+            default_board(board);
+            side = BLACK;
+            unplayed = 0;
+            playing = 1;
+            while (playing) {
+                playing = play_turn(board, &side, &unplayed, 0,
+                        black_source, white_source, flips);
+            }
+            score_w = find_score(board,WHITE);
+            score_b = find_score(board,BLACK);
+            if (score_w > score_b)
+                wins_w++;
+            else if (score_w == score_b)
+                draws ++;
+            else
+                wins_b++;
+        }
+        end = clock();
+        elapsed = (end - start)/(double)CLOCKS_PER_SEC;
+        printf("Black %.2f\%\nWhite %.2f\%\nDraw %.2f\%\n",
+                ((double)wins_b/(double)simulate*100),
+                ((double)wins_w/(double)simulate*100),
+                ((double)draws/(double)simulate*100));
+        printf("Simulated lasted %.3f seconds, %.3f seconds per game.\n",
+                elapsed, elapsed/(double)simulate);
+    }
     return 0;
 }
