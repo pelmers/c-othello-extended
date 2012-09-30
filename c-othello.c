@@ -2,6 +2,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+// Peter Elmers, September 2012
+
 #define EMPTY 0
 #define WHITE 1
 #define BLACK -1
@@ -25,6 +27,7 @@ int legal_move(int *board, int move, int side, int *flips);
 int test_possible_moves(int *board, int side, int *flips);
 int test_end(int *board, int unplayed);
 int find_score(int *board, int side);
+int evaluate_board(int *board, int side, int unplayed);
 int get_human_move(int *board, int side);
 int get_random_move(int *board, int side);
 int get_move(int *board, int side, int source);
@@ -157,6 +160,27 @@ int find_score(int *board, int side) {
     return n;
 }
 
+int evaluate_board(int *board, int side, int unplayed) {
+    int score = 0;
+    int i;
+    if (test_end(board, unplayed) == 1) {
+        int score_self = find_score(board,side);
+        int score_opp = find_score(board,-side);
+        if (score_self > score_opp)
+            return MAX_SCORE;
+        else if (score_opp > score_self)
+            return MIN_SCORE;
+    }
+    for (i=11;i<90;i++) {
+        if (board[i] == side)
+            score += weights[i];
+        else if (board[i] == -side)
+            score -= weights[i];
+    }
+    return score;
+}
+
+
 int get_human_move(int *board, int side) {
     int i;
     int move;
@@ -199,6 +223,7 @@ int get_random_move(int *board, int side) {
     move = possible_moves[(rand() % counter)];
     return move;
 }
+
 
 void empty_board(int *board) {
     int i;
