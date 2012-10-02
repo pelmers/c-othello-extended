@@ -152,7 +152,7 @@ void to_flip(int *board, int move, int side, int *flips) {
     int d, n;
     int next;
     // the most flippable in one direction is 6
-    int new_flips[7];
+    int new_flips[8];
     // i keeps track of index in flips[]
     int i = 0;
     for (d=0; d<8; d++) {
@@ -172,7 +172,7 @@ void to_flip(int *board, int move, int side, int *flips) {
                 if (board[next] == side) {
                     for (; n>=0; n--) {
                         flips[i] = new_flips[n];
-                        ++i;
+                        i++;
                     }
                     break;
                 }
@@ -188,7 +188,7 @@ void make_move(int *board, int move, int side, int *flips) {
     int i;
     // set a tile at this location
     board[move] = side;
-    for (i=0; flips[i] != 0; ++i)
+    for (i=0; flips[i] != 0; i++)
         // flip each position in flips
         board[flips[i]] = side;
 }
@@ -213,7 +213,7 @@ int test_possible_moves(int *board, int side, int *flips) {
     /* Return 1 if there is any possible move for side
      */
     int i;
-    for (i=11;i<90;++i) {
+    for (i=11;i<90;i++) {
         if (legal_move(board, i, side, flips) == 1)
             // if any move on the board is legal, there is a possible move
             return 1;
@@ -229,7 +229,7 @@ int test_end(int *board, int unplayed) {
     if (unplayed == 2)
         return 1;
     int i;
-    for (i=11;i<90;++i) {
+    for (i=11;i<90;i++) {
         if (board[i] == EMPTY)
             // game hasn't ended if there is any empty square
             return 0;
@@ -242,7 +242,7 @@ int find_score(int *board, int side) {
      */
     int i;
     int n = 0;
-    for (i=11;i<90;++i) {
+    for (i=11;i<90;i++) {
         if (board[i] == side)
             n++;
     }
@@ -264,7 +264,7 @@ int evaluate_board(int *board, int side, int unplayed) {
         else if (score_opp > score_self)
             return MIN_SCORE;
     }
-    for (i=11;i<90;++i) {
+    for (i=11;i<90;i++) {
         if (board[i] == side)
             score += weights[i];
         else if (board[i] == -side)
@@ -282,7 +282,7 @@ int get_human_move(int *board, int side) {
     char input[32];
     int flips[24];
     printf("Possible moves: ");
-    for(i=11; i<90; ++i) {
+    for(i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1)
             printf(" %d",i);
     }
@@ -313,7 +313,7 @@ int get_random_move(int *board, int side) {
     int possible_moves[64];
     int flips[24];
     //int flips[24];
-    for(i=11; i<90; ++i) {
+    for(i=11; i<90; i++) {
         if (legal_move(board,i,side,flips)) {
             possible_moves[counter] = i;
             counter++;
@@ -333,7 +333,7 @@ int get_shallow_move(int *board, int side) {
     int old_board[100];
     int best_score = MIN_SCORE;
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board,i,side,flips) == 1) {
             make_move(board,i,side,flips);
             score = evaluate_board(board, side, 0);
@@ -358,7 +358,7 @@ int maximize(int *board, int side, int unplayed, int ply) {
         return evaluate_board(board, side, unplayed);
     // backup the current playing board
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -377,7 +377,7 @@ int minimize(int *board, int side, int unplayed, int ply) {
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -397,7 +397,7 @@ int get_minimax_move(int *board, int side, int unplayed, int ply) {
     int old_board[100];
     int best_score = MIN_SCORE-2;
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -418,7 +418,7 @@ int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -438,7 +438,7 @@ int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -458,7 +458,7 @@ int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
     int old_board[100];
     int best_score = MIN_SCORE-1;
     copy_board(board, old_board);
-    for (i=11; i<90; ++i) {
+    for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -499,7 +499,7 @@ void print_board(int *board, int side) {
         printf("Currently black's turn to play");
     else printf("Currently white's turn to play");
     printf("\n\t");
-    for(i=1; i<89; ++i) {
+    for(i=1; i<89; i++) {
         if (i <= 8)
             printf("%d   ",i);
         else if (i % 10 == 0)
@@ -548,7 +548,7 @@ int get_move(int *board, int side, int source, int unplayed) {
     if (source == MINIMAX) {
         int i;
         int count = 0;
-        for (i=11;i<90;++i) {
+        for (i=11;i<90;i++) {
             if (board[i] == EMPTY)
                 count++;
         }
@@ -560,7 +560,7 @@ int get_move(int *board, int side, int source, int unplayed) {
     if (source == ALPHABETA) {
         int i;
         int count = 0;
-        for (i=11;i<90;++i) {
+        for (i=11;i<90;i++) {
             if (board[i] == EMPTY)
                 count++;
         }
@@ -605,9 +605,9 @@ void progress_bar(int width, double percent) {
     width -= 9;
     filled = (double)width*percent/100.0;
     printf("\r[ ");
-    for(i=0;i < (int)filled; ++i)
+    for(i=0;i < (int)filled; i++)
         printf("#");
-    for(i=i;i < (width-1); ++i)
+    for(i=i;i < (width-1); i++)
         printf("-");
     printf(" ] %.0f%%", percent);
 }
@@ -657,7 +657,7 @@ int main () {
 
     else {
         start = clock();
-        for(i=0;i<simulate;++i) {
+        for(i=0;i<simulate;i++) {
             progress_bar(80,(double)i/(double)simulate*100.0);
             default_board(board);
             side = BLACK;
