@@ -5,6 +5,7 @@
 
 // Peter Elmers, September 2012
 
+//define a few constants
 #define EMPTY 0
 #define WHITE 1
 #define BLACK -1
@@ -18,9 +19,12 @@
 #define MINIMAX 3
 #define ALPHABETA 4
 
+// END_DEPTH controls when the AI begins to search all the way to end
+// S_DEPTH is all other times
 #define S_DEPTH 3
 #define END_DEPTH 8
 
+// macros to find maximum and minimum of two integers
 #define max(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
 #define min(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
 
@@ -36,6 +40,7 @@ void print_victor(int *board);
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
 int legal_move(int *board, int move, int side, int *flips);
+int flip_possible(int *board, int move, int side);
 int test_possible_moves(int *board, int side, int *flips);
 int test_end(int *board, int unplayed);
 int find_score(int *board, int side);
@@ -55,6 +60,7 @@ int play_turn(int *board, int *side, int *unplayed, int show,
 void progress_bar(int width, double percent);
 int main();
 
+// borrowed from Norvig's Paradigms of AI programming
 const int weights[100] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,120,-20, 20,  5,  5, 20,-20,120,  0,
@@ -68,6 +74,7 @@ const int weights[100] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 };
 
+//right, left, up, down, diagonals
 const int directions[8] = {1,-1, 10,-10, 9,-9, 11,-11};
 
 int get_source(int side) {
@@ -102,6 +109,7 @@ int get_randomize() {
 }
 
 void reset_flips(int *flips) {
+    // manually resetting turns out faster than using a loop
     flips[0] = 0;
     flips[1] = 0;
     flips[2] = 0;
@@ -132,6 +140,7 @@ void reset_flips(int *flips) {
 }
 
 void copy_board(int *oldboard, int *newboard) {
+    // again, memcpy from memory.h is faster than loop for copying data
     memcpy(newboard, oldboard, 100*sizeof(int));
     //int i;
     //for (i=0;i<100;i++)
@@ -139,9 +148,13 @@ void copy_board(int *oldboard, int *newboard) {
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
+    // d keeps track of direction being followed
+    // n keeps track of index of new_flips[]
     int d, n;
     int next;
-    int new_flips[8];
+    // the most flippable in one direction is 6
+    int new_flips[7];
+    // i keeps track of index in flips[]
     int i = 0;
     for (d=0; d<8; d++) {
         next = move + directions[d];
@@ -169,44 +182,96 @@ void to_flip(int *board, int move, int side, int *flips) {
     }
 }
 
+// Like to_flip function, but returns as soon as it finds a possible flip
+int flip_possible(int *board, int move, int side) {
+    if (board[move] != EMPTY)
+        return 0;
+    int d, n;
+    int next;
+    int new_flips[7];
+    for (d=0; d<8; d++) {
+        next = move + directions[d];
+        n = 0;
+        if (board[next] == -side) {
+            new_flips[n] = next;
+            for (;;) {
+                next += directions[d];
+                if (board[next] == EMPTY || board[next] == BORDER)
+                    break;
+                if (board[next] == -side) {
+                    n++;
+                    new_flips[n] = next;
+                    continue;
+                }
+                if (board[next] == side) {
+                    // instead of writing the flip, just return
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 void make_move(int *board, int move, int side, int *flips) {
+    /* Make a move
+     * typically called after legal_move!
+     */
     int i;
+    // set a tile at this location
     board[move] = side;
     for (i=0; flips[i] != 0; i++)
+        // flip each position in flips
         board[flips[i]] = side;
 }
 
 int legal_move(int *board, int move, int side, int *flips) {
+    /* Return 0 if the move is not legal
+     * Return 1 if legal
+     * Update flips to the flips found in the move
+     */
     if (board[move] != EMPTY)
+        // it has to be empty to place a move there
         return 0;
     reset_flips(flips);
     to_flip(board, move, side, flips);
     if (flips[0] == 0)
+        // no flips found, therefore not a valid move
         return 0;
     return 1;
 }
 
 int test_possible_moves(int *board, int side, int *flips) {
+    /* Return 1 if there is any possible move for side
+     */
     int i;
     for (i=11;i<90;i++) {
-        if (legal_move(board, i, side, flips) == 1)
+        if (flip_possible(board, i, side) == 1)
+            // if any move on the board is legal, there is a possible move
             return 1;
     }
+    // out of loop without having returned, no moves found
     return 0;
 }
 
 int test_end(int *board, int unplayed) {
+    /* Return 1 if the game has ended
+     * conditions: two consecutive unplayed turns or no empty spaces left
+     */
     if (unplayed == 2)
         return 1;
     int i;
     for (i=11;i<90;i++) {
         if (board[i] == EMPTY)
+            // game hasn't ended if there is any empty square
             return 0;
     }
     return 1;
 }
 
 int find_score(int *board, int side) {
+    /* Return the number of tiles a side has
+     */
     int i;
     int n = 0;
     for (i=11;i<90;i++) {
@@ -217,6 +282,10 @@ int find_score(int *board, int side) {
 }
 
 int evaluate_board(int *board, int side, int unplayed) {
+    /* Evaluate the current board position for side
+     * MAX_SCORE if victory, MIN_SCORE if loss
+     * Return the score as sum of own minus sum of opponent's
+     */
     int score = 0;
     int i;
     if (test_end(board, unplayed) == 1) {
@@ -238,13 +307,15 @@ int evaluate_board(int *board, int side, int unplayed) {
 
 
 int get_human_move(int *board, int side) {
+    /* Return human move based on input
+     */
     int i;
     int move;
     char input[32];
     int flips[24];
     printf("Possible moves: ");
     for(i=11; i<90; i++) {
-        if (legal_move(board,i,side,flips) == 1)
+        if (flip_possible(board,i,side) == 1)
             printf(" %d",i);
     }
     printf("\n");
@@ -257,7 +328,7 @@ int get_human_move(int *board, int side) {
         //    move = atoi(buf);
 
         printf("\n");
-        if (legal_move(board,move,side,flips) == 1)
+        if (flip_possible(board,move,side) == 1)
             return move;
         else
             printf("Invalid input, please try again\n");
@@ -265,13 +336,17 @@ int get_human_move(int *board, int side) {
 }
 
 int get_random_move(int *board, int side) {
+    /* Randomly pick a move!
+     * Mostly used for testing
+     */
     int i;
     int move;
     int counter = 0;
     int possible_moves[64];
-    int flips[24];
+    //int flips[24];
     for(i=11; i<90; i++) {
-        if (legal_move(board,i,side,flips) == 1) {
+        if (flip_possible(board,i,side)) {
+        //if (legal_move(board,i,side,flips)) {
             possible_moves[counter] = i;
             counter++;
         }
@@ -281,6 +356,8 @@ int get_random_move(int *board, int side) {
 }
 
 int get_shallow_move(int *board, int side) {
+    /* Return the move that gives the best position immediately after
+     */
     int i;
     int move;
     int score;
@@ -302,20 +379,23 @@ int get_shallow_move(int *board, int side) {
     return move;
 }
 
-
+// Blasphemous! maximize instead of maximise?!
 int maximize(int *board, int side, int unplayed, int ply) {
     int old_board[100];
     int flips[24];
     int i;
     int score = MIN_SCORE;
     if (ply == 0 || test_end(board, unplayed) == 1)
+        // either reached end of search or game is over, so return
         return evaluate_board(board, side, unplayed);
+    // backup the current playing board
     copy_board(board, old_board);
     for (i=11; i<90; i++) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
         score = max(score, minimize(board, -side, 0, ply-1));
+        // reset the board after computing the score
         copy_board(old_board, board);
     }
     return score;
@@ -339,6 +419,8 @@ int minimize(int *board, int side, int unplayed, int ply) {
     return score;
 }
 
+// main difference between get_move and maximize is that this one 
+// returns a move, not a score
 int get_minimax_move(int *board, int side, int unplayed, int ply) {
     int i;
     int score;
@@ -375,6 +457,7 @@ int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
         a = max(a, ab_minimize(board, -side, 0, ply-1, a, b));
         copy_board(old_board, board);
         if (b <= a)
+            // that's a cutoff, no point further pursuing this position
             break;
     }
     return a;
@@ -461,7 +544,7 @@ void print_board(int *board, int side) {
             else if (board[i] == BLACK)
                 printf("B   ");
             else if (board[i] == EMPTY) {
-                if (legal_move(board,i,side,flips) == 1)
+                if (flip_possible(board,i,side) == 1)
                     printf("-   ");
                 else
                     printf("    ");
