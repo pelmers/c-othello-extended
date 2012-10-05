@@ -31,11 +31,7 @@
 #define max(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
 #define min(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
 
-//getting information from user
-int get_source(int side);
-int get_simulate_number();
-int get_randomize();
-// basic board manipulation
+// board.c
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
 int legal_move(int *board, int move, int side, int *flips);
@@ -46,7 +42,7 @@ inline void reset_flips(int *flips);
 inline void empty_board(int *board);
 inline void default_board(int *board);
 inline void copy_board(int *oldboard, int *newboard);
-// AI functions
+// ai.c
 int evaluate_board(int *board, int side, int unplayed);
 int get_human_move(int *board, int side);
 int get_random_move(int *board, int side);
@@ -57,14 +53,16 @@ int get_minimax_move(int *board, int side, int unplayed, int ply);
 int ab_maximize(int *board, int side, int unplayed, int ply, int a, int b);
 int ab_minimize(int *board, int side, int unplayed, int ply, int a, int b);
 int get_alphabeta_move(int *board, int side, int unplayed, int ply);
-// interface handling
+// main.c
+int get_source(int side);
+int get_simulate_number();
+int get_randomize();
 void print_board(int *board, int side);
 void print_victor(int *board);
 int get_move(int *board, int side, int source, int unplayed);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
 inline void progress_bar(int width, double percent);
-// self-explanatory
 int main();
 
 extern const int directions[8];
