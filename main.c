@@ -62,17 +62,17 @@ int get_human_move(int *board, int side) {
     }
 }
 
-void progress_bar(int width, double percent) {
-    double filled;
+void progress_bar(int width, int percent) {
+    int filled;
     int i = 0;
     width -= 9;
-    filled = (double)width*percent/100.0;
+    filled = width*percent/100;
     printf("\r[ ");
-    for(i=0;i < (int)filled; ++i)
+    for(i=0;i < filled; ++i)
         printf("#");
     for(i=i;i < (width-1); ++i)
         printf("-");
-    printf(" ] %.0f%%", percent);
+    printf(" ] %d%%", percent);
 }
 
 
@@ -120,8 +120,13 @@ int main () {
 
     else {
         start = clock();
+        int percent = 0, old_percent = 0;
         for(i=0;i<simulate;++i) {
-            progress_bar(80,(double)i/(double)simulate*100.0);
+            percent = i*100/simulate;
+            if (percent > old_percent) {
+                progress_bar(80,percent);
+                old_percent = percent;
+            }
             default_board(board);
             side = BLACK;
             unplayed = 0;

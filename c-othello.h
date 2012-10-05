@@ -62,7 +62,7 @@ void print_victor(int *board);
 int get_move(int *board, int side, int source, int unplayed);
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
-inline void progress_bar(int width, double percent);
+inline void progress_bar(int width, int percent);
 int main();
 
 extern const int directions[8];
