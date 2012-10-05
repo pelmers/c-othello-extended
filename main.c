@@ -62,17 +62,49 @@ int get_human_move(int *board, int side) {
     }
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+void progress_bar(int width, double percent) {
+    double filled;
+    int i = 0;
+    width -= 9;
+    filled = (double)width*percent/100.0;
+=======
+=======
+>>>>>>> unstable
+>>>>>>> master
 void progress_bar(int width, int percent) {
     double filled;
     int i = 0;
     width -= 9;
     filled = width*percent/100.0;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> unstable
+=======
+>>>>>>> unstable
+>>>>>>> master
     printf("\r[ ");
     for(i=0;i < (int)filled; ++i)
         printf("#");
     for(i=i;i < (width-1); ++i)
         printf("-");
+<<<<<<< HEAD
     printf(" ] %d%%", percent);
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    printf(" ] %.0f%%", percent);
+=======
+    printf(" ] %d%%", percent);
+>>>>>>> unstable
+=======
+    printf(" ] %d%%", percent);
+>>>>>>> unstable
+>>>>>>> master
 }
 
 
@@ -120,6 +152,16 @@ int main () {
 
     else {
         start = clock();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+        for(i=0;i<simulate;++i) {
+            progress_bar(80,(double)i/(double)simulate*100.0);
+=======
+=======
+>>>>>>> unstable
+>>>>>>> master
         int percent = 0;
         int new_percent = 0;
         for(i=0;i<simulate;++i) {
@@ -128,6 +170,13 @@ int main () {
                 progress_bar(80,new_percent);
                 percent = new_percent;
             }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> unstable
+=======
+>>>>>>> unstable
+>>>>>>> master
             default_board(board);
             side = BLACK;
             unplayed = 0;
