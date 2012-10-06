@@ -4,6 +4,9 @@
 const int directions[8] = {1,-1, 10,-10, 9,-9, 11,-11};
 
 void reset_flips(int *flips) {
+    /* Takes a pointer to flips array as input
+     * Return nothing, but reset all flips to 0
+     */
     // manually resetting turns out faster than using a loop
     flips[0] = 0;
     flips[1] = 0;
@@ -35,6 +38,9 @@ void reset_flips(int *flips) {
 }
 
 void copy_board(int *oldboard, int *newboard) {
+    /* Make the array newboard a copy of the array oldboard
+     * Return nothing, but modify newboard
+     */
     // again, memcpy from memory.h is faster than loop for copying data
     memcpy(newboard, oldboard, 100*sizeof(int));
     //int i;
@@ -43,6 +49,10 @@ void copy_board(int *oldboard, int *newboard) {
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
+    /* Take move and side as input along with board and flips arrays
+     * Examine the move to see what tiles will be flipped
+     * Store the positions of flippable tiles in *flips
+     */
     // d keeps track of direction being followed
     // n keeps track of index of new_flips[]
     int d, n;
@@ -146,6 +156,9 @@ int find_score(int *board, int side) {
 }
 
 int get_move(int *board, int side, int source, int unplayed) {
+    /* Call an appropriate function to get a move from specified source
+     * Return move as integer
+     */
     if (source == HUMAN)
         return get_human_move(board, side);
     if (source == RANDOM)
@@ -153,6 +166,7 @@ int get_move(int *board, int side, int source, int unplayed) {
     if (source == SHALLOW)
         return get_shallow_move(board, side);
     if (source == MINIMAX) {
+        // find out how many empty squares are left
         int i;
         int count = 0;
         for (i=11;i<89;++i) {
@@ -160,8 +174,10 @@ int get_move(int *board, int side, int source, int unplayed) {
                 count++;
         }
         if (count >= END_DEPTH)
+            // search to S_DEPTH
             return get_minimax_move(board, side, unplayed, S_DEPTH);
         else
+            // search to end of the game
             return get_minimax_move(board, side, unplayed, count);
     }
     if (source == ALPHABETA) {
@@ -182,6 +198,10 @@ int get_move(int *board, int side, int source, int unplayed) {
 
 int play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_source, int *flips) {
+    /* Handle the playing of a turn
+     * Modifies side and unplayed if necessary
+     * Return 1 if game continues, 0 if ends
+     */
     int move;
     if (show != 0)
         print_board(board, *side);
@@ -208,6 +228,9 @@ int play_turn(int *board, int *side, int *unplayed, int show,
 }
 
 void empty_board(int *board) {
+    /* Make array board an empty board
+     * Empty board contains only EMPTY and BORDER squares
+     */
     int i;
     for (i=100; i>0; --i) {
         if (i % 10 == 9 || i % 10 == 0 || i < 9 || i>90) {
@@ -220,6 +243,8 @@ void empty_board(int *board) {
 }
 
 void default_board(int *board) {
+    /* Empty the board and then set default starting positions
+     */
     empty_board(board);
     // set starting locations
     board[44] = board[55] = WHITE;
@@ -227,6 +252,10 @@ void default_board(int *board) {
 }
 
 void print_board(int *board, int side) {
+    /* Print the board to the screen in a human-readable form
+     * Includes row and column markers
+     * Also indicates possible playing positions and current scores
+     */
     int i;
     int flips[24];
     if (side == BLACK)
@@ -239,6 +268,7 @@ void print_board(int *board, int side) {
         else if (i % 10 == 0)
             printf("%d\t",i);
         else if (i % 10 == 9)
+            // horizontal line
             printf("\n---------------------------------------\n");
         else {
             if (board[i] == WHITE)
@@ -247,6 +277,7 @@ void print_board(int *board, int side) {
                 printf("B   ");
             else if (board[i] == EMPTY) {
                 if (legal_move(board,i,side,flips) == 1)
+                    // indicates that the move is playable
                     printf("-   ");
                 else
                     printf("    ");
@@ -259,6 +290,8 @@ void print_board(int *board, int side) {
 }
 
 void print_victor(int *board) {
+    /* Print a message showing who won and the score of the game
+     */
     int white_score = find_score(board, WHITE);
     int black_score = find_score(board, BLACK);
     if (white_score > black_score)

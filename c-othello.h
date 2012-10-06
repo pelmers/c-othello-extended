@@ -6,6 +6,9 @@
 #include <time.h>
 #include <stdlib.h>
 
+//screen width for the progress bar
+#define SCR_WIDTH 80
+
 //define a few constants used on the board
 #define EMPTY 0
 #define WHITE 1
@@ -35,13 +38,15 @@
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
 int legal_move(int *board, int move, int side, int *flips);
-inline int test_possible_moves(int *board, int side, int *flips);
-inline int test_end(int *board, int unplayed);
-inline int find_score(int *board, int side);
-inline void reset_flips(int *flips);
-inline void empty_board(int *board);
-inline void default_board(int *board);
-inline void copy_board(int *oldboard, int *newboard);
+int test_possible_moves(int *board, int side, int *flips);
+int test_end(int *board, int unplayed);
+int find_score(int *board, int side);
+void reset_flips(int *flips);
+void empty_board(int *board);
+void default_board(int *board);
+void copy_board(int *oldboard, int *newboard);
+int play_turn(int *board, int *side, int *unplayed, int show, 
+        int black_source, int white_soure, int *flips);
 // ai.c
 int evaluate_board(int *board, int side, int unplayed);
 int get_human_move(int *board, int side);
@@ -60,10 +65,8 @@ int get_randomize();
 void print_board(int *board, int side);
 void print_victor(int *board);
 int get_move(int *board, int side, int source, int unplayed);
-int play_turn(int *board, int *side, int *unplayed, int show, 
-        int black_source, int white_soure, int *flips);
-inline void progress_bar(int width, int percent);
 int main();
+void progress_bar(int width, int percent);
 
 extern const int directions[8];
 extern const int weights[100];

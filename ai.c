@@ -17,20 +17,21 @@ const int weights[100] = {
 
 int get_random_move(int *board, int side) {
     /* Randomly pick a move!
-     * Mostly used for testing
+     * Mostly used for simulating other AI algorithms
      */
     int i;
     int move;
     int counter = 0;
     int possible_moves[64];
     int flips[24];
-    //int flips[24];
     for(i=11; i<89; ++i) {
         if (legal_move(board,i,side,flips)) {
             possible_moves[counter] = i;
             counter++;
         }
     }
+    // Using modulus with rand is not ideal, but it's good enough
+    // Problem is that it can give skewed results
     move = possible_moves[(rand() % counter)];
     return move;
 }
@@ -46,14 +47,17 @@ int evaluate_board(int *board, int side, int unplayed) {
         int score_self = find_score(board,side);
         int score_opp = find_score(board,-side);
         if (score_self > score_opp)
+            // victory is max score
             return MAX_SCORE;
         else if (score_opp > score_self)
+            // defeat is min score
             return MIN_SCORE;
     }
     for (i=11;i<89;++i) {
         if (board[i] == side)
             score += weights[i];
         else if (board[i] == -side)
+            // subtract opponent's scores
             score -= weights[i];
     }
     return score;
@@ -68,6 +72,7 @@ int get_shallow_move(int *board, int side) {
     int flips[24];
     int old_board[100];
     int best_score = MIN_SCORE;
+    // backup the existing board
     copy_board(board, old_board);
     for (i=11; i<89; ++i) {
         if (legal_move(board,i,side,flips) == 1) {
@@ -77,6 +82,7 @@ int get_shallow_move(int *board, int side) {
                 best_score = score;
                 move = i;
             }
+            // reset the board before each iteration
             copy_board(old_board, board);
         }
     }
@@ -85,6 +91,11 @@ int get_shallow_move(int *board, int side) {
 
 // Blasphemous! maximize instead of maximise?!
 int maximize(int *board, int side, int unplayed, int ply) {
+    /* The max portion of minimax
+     * Return maximum score available from position
+     * Used with currently playing side's turn
+     * Search with mutual recursion to depth ply 
+     */
     int old_board[100];
     int flips[24];
     int i;
@@ -106,6 +117,10 @@ int maximize(int *board, int side, int unplayed, int ply) {
 }
 
 int minimize(int *board, int side, int unplayed, int ply) {
+    /* Search to depth ply with mutual recursion
+     * Side should be the opponent of currently playing side
+     * Return the lowest score found
+     */
     int old_board[100];
     int flips[24];
     int i;
@@ -126,6 +141,8 @@ int minimize(int *board, int side, int unplayed, int ply) {
 // main difference between get_move and maximize is that this one 
 // returns a move, not a score
 int get_minimax_move(int *board, int side, int unplayed, int ply) {
+    /* Similar to maximize(), but return move instead of score
+     */
     int i;
     int score;
     int best_move;
@@ -148,6 +165,10 @@ int get_minimax_move(int *board, int side, int unplayed, int ply) {
 }
 
 int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
+    /* Search to depth ply with mutual recursion
+     * Return maximum score possible for current side
+     * Cuts off search using a and b parameters if possible
+     */
     int old_board[100];
     int flips[24];
     int i;
@@ -168,6 +189,10 @@ int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
 }
 
 int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
+    /* Search to depth ply with mutual recursion
+     * Return minimum score possible as opponent of current player
+     * Cut off with a and b when possible
+     */
     int old_board[100];
     int flips[24];
     int i;
@@ -187,6 +212,9 @@ int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
 }
 
 int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
+    /* Return best move using alphabeta search to ply depth
+     * Similar to ab_maximize, but finds move instead of score
+     */
     int i;
     int score;
     int best_move;

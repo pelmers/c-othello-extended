@@ -3,6 +3,9 @@
 // Peter Elmers, September 2012
 
 int get_source(int side) {
+    /* Read source selection from standard input (user)
+     * Return integer representing choice
+     */
     int choice;
     char input[16];
     printf("\
@@ -20,6 +23,9 @@ int get_source(int side) {
 }
 
 int get_simulate_number() {
+    /* Get number of games to simulate
+     * Return integer
+     */
     char input[16];
     printf("Number of games to simulate: ");
     scanf("%s",input);
@@ -27,6 +33,9 @@ int get_simulate_number() {
 }
 
 int get_randomize() {
+    /* Ask in standard input whether to randomize start of games
+     * Return integer, 0 being false, others true
+     */
     char input[16];
     printf("Do you want to randomize game starts? (1/0 for yes/no) ");
     scanf("%s",input);
@@ -63,6 +72,8 @@ int get_human_move(int *board, int side) {
 }
 
 void progress_bar(int width, int percent) {
+    /* Print a progress bar using width of screen and perecentage filled
+     */
     int filled;
     int i = 0;
     width -= 9;
@@ -92,7 +103,9 @@ int main () {
     int flips[24];
     int black_source = get_source(BLACK);
     int white_source = get_source(WHITE);
+    // initialize seed for rand()
     srand(time(NULL));
+    // necessary for progress_bar to work well
     setvbuf(stdout, NULL, _IONBF, 0);
     int simulate = 0;
     int randomize = 0;
@@ -106,6 +119,7 @@ int main () {
     }
 
     if (simulate < 2) {
+        // don't need to run full simulation for just one gamE
         default_board(board);
         playing = 1;
         turn_number = 0;
@@ -124,7 +138,7 @@ int main () {
         for(i=0;i<simulate;++i) {
             percent = i*100/simulate;
             if (percent > old_percent) {
-                progress_bar(80,percent);
+                progress_bar(SCR_WIDTH,percent);
                 old_percent = percent;
             }
             default_board(board);
