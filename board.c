@@ -132,9 +132,9 @@ int test_end(int *board, int unplayed) {
     /* Return 1 if the game has ended
      * conditions: two consecutive unplayed turns or no empty spaces left
      */
+    int i;
     if (unplayed == 2)
         return 1;
-    int i;
     for (i=11;i<89;++i) {
         if (board[i] == EMPTY)
             // game hasn't ended if there is any empty square

@@ -67,7 +67,7 @@ int get_shallow_move(int *board, int side) {
     /* Return the move that gives the best position immediately after
      */
     int i;
-    int move;
+    int move = 0;
     int score;
     int flips[24];
     int old_board[100];
@@ -109,7 +109,7 @@ int maximize(int *board, int side, int unplayed, int ply) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
-        score = max(score, minimize(board, -side, 0, ply-1));
+        score = MAX(score, minimize(board, -side, 0, ply-1));
         // reset the board after computing the score
         copy_board(old_board, board);
     }
@@ -132,7 +132,7 @@ int minimize(int *board, int side, int unplayed, int ply) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
-        score = min(score, maximize(board, -side, 0, ply-1));
+        score = MIN(score, maximize(board, -side, 0, ply-1));
         copy_board(old_board, board);
     }
     return score;
@@ -145,7 +145,7 @@ int get_minimax_move(int *board, int side, int unplayed, int ply) {
      */
     int i;
     int score;
-    int best_move;
+    int best_move = 0;
     int flips[24];
     int old_board[100];
     int best_score = MIN_SCORE-2;
@@ -179,7 +179,7 @@ int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
-        a = max(a, ab_minimize(board, -side, 0, ply-1, a, b));
+        a = MAX(a, ab_minimize(board, -side, 0, ply-1, a, b));
         copy_board(old_board, board);
         if (b <= a)
             // that's a cutoff, no point further pursuing this position
@@ -203,7 +203,7 @@ int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
-        b = min(b, ab_maximize(board, -side, 0, ply-1, a, b));
+        b = MIN(b, ab_maximize(board, -side, 0, ply-1, a, b));
         copy_board(old_board, board);
         if (b <= a)
             break;
@@ -217,7 +217,7 @@ int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
      */
     int i;
     int score;
-    int best_move;
+    int best_move = 0;
     int flips[24];
     int old_board[100];
     int best_score = MIN_SCORE-1;

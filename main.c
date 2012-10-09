@@ -101,17 +101,17 @@ int main () {
     int draws = 0;
     int board[100];
     int flips[24];
+    int randomize = 0;
+    int side = BLACK;
+    int unplayed = 0;
+    int simulate = 0;
     int black_source = get_source(BLACK);
     int white_source = get_source(WHITE);
     // initialize seed for rand()
     srand(time(NULL));
     // necessary for progress_bar to work well
     setvbuf(stdout, NULL, _IONBF, 0);
-    int simulate = 0;
-    int randomize = 0;
-    int side = BLACK;
-    int unplayed = 0;
-    if (black_source != HUMAN && white_source != HUMAN) {
+        if (black_source != HUMAN && white_source != HUMAN) {
         simulate = get_simulate_number();
         if (black_source != RANDOM || white_source != RANDOM) {
             randomize = get_randomize();
@@ -133,8 +133,8 @@ int main () {
     }
 
     else {
-        start = clock();
         int percent = 0, old_percent = 0;
+        start = clock();
         for(i=0;i<simulate;++i) {
             percent = i*100/simulate;
             if (percent > old_percent) {

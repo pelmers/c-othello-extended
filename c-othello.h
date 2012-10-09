@@ -31,8 +31,8 @@
 #define END_DEPTH 8
 
 // macros to find maximum and minimum of two integers
-#define max(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
-#define min(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
+#define MAX(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
+#define MIN(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
 
 // board.c
 void to_flip(int *board, int move, int side, int *flips);
