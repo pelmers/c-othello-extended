@@ -28,7 +28,7 @@
 // END_DEPTH controls when the AI begins to search all the way to end
 // S_DEPTH is all other times
 #define S_DEPTH 3
-#define END_DEPTH 8
+#define END_DEPTH 9
 
 // macros to find maximum and minimum of two integers
 #define MAX(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)

@@ -62,14 +62,13 @@ void to_flip(int *board, int move, int side, int *flips) {
     // i keeps track of index in flips[]
     int i = 0;
     for (d=0; d<8; d++) {
-        next = move + directions[d];
         n = 0;
+        next = move + directions[d];
+        
         if (board[next] == -side) {
-            new_flips[n] = next;
-            for (;;) {
+            new_flips[0] = next;
+            while (board[next] != EMPTY && board[next] != BORDER) {
                 next += directions[d];
-                if (board[next] == EMPTY || board[next] == BORDER)
-                    break;
                 if (board[next] == -side) {
                     n++;
                     new_flips[n] = next;
