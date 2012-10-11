@@ -7,7 +7,7 @@ void reset_flips(int *flips) {
     /* Takes a pointer to flips array as input
      * Return nothing, but reset all flips to 0
      */
-    // manually resetting turns out faster than using a loop
+    // unrolled for loop runs faster
     flips[0] = 0;
     flips[1] = 0;
     flips[2] = 0;
@@ -27,13 +27,13 @@ void reset_flips(int *flips) {
     flips[16] = 0;
     flips[17] = 0;
     flips[18] = 0;
-    flips[19] = 0;
+    /*flips[19] = 0;
     flips[20] = 0;
     flips[21] = 0;
     flips[22] = 0;
-    flips[23] = 0;
+    flips[23] = 0;*/
     //int i;
-    //for (i=0;i<24;++i)
+    //for (i=0;i<19;++i)
     //    flips[i] = 0;
 }
 
@@ -64,23 +64,17 @@ void to_flip(int *board, int move, int side, int *flips) {
     for (d=0; d<8; d++) {
         n = 0;
         next = move + directions[d];
-        
-        if (board[next] == -side) {
-            new_flips[0] = next;
-            while (board[next] != EMPTY && board[next] != BORDER) {
-                next += directions[d];
-                if (board[next] == -side) {
-                    n++;
-                    new_flips[n] = next;
-                    continue;
-                }
-                if (board[next] == side) {
-                    for (; n>=0; n--) {
-                        flips[i] = new_flips[n];
-                        ++i;
-                    }
-                    break;
-                }
+        if (board[next] != -side)
+            continue;
+        new_flips[0] = next;
+        while (board[next] != EMPTY && board[next] != BORDER) {
+            next += directions[d];
+            if (board[next] == -side)
+                new_flips[++n] = next;
+            if (board[next] == side) {
+                while (n>=0)
+                    flips[i++] = new_flips[n--];
+                break;
             }
         }
     }
@@ -145,7 +139,7 @@ int test_end(int *board, int unplayed) {
 int find_score(int *board, int side) {
     /* Return the number of tiles a side has
      */
-    int i;
+    int i = 11;
     int n = 0;
     for (i=11;i<89;++i) {
         if (board[i] == side)
@@ -212,14 +206,14 @@ int play_turn(int *board, int *side, int *unplayed, int show,
        return 1;
     }
     if (*side == BLACK) {
-        move = get_move(board, *side, black_source, *unplayed);
-        legal_move(board, move, *side, flips);
-        make_move(board,move,*side,flips);
+        move = get_move(board, BLACK, black_source, *unplayed);
+        legal_move(board, move, BLACK, flips);
+        make_move(board,move,BLACK,flips);
     }
     else if (*side == WHITE) {
-        move = get_move(board, *side, white_source, *unplayed);
-        legal_move(board, move, *side, flips);
-        make_move(board, move, *side, flips);
+        move = get_move(board, WHITE, white_source, *unplayed);
+        legal_move(board, move, WHITE, flips);
+        make_move(board, move, WHITE, flips);
     }
     *side *= -1;
     *unplayed = 0;
@@ -256,7 +250,7 @@ void print_board(int *board, int side) {
      * Also indicates possible playing positions and current scores
      */
     int i;
-    int flips[24];
+    int flips[19];
     if (side == BLACK)
         printf("Currently black's turn to play");
     else printf("Currently white's turn to play");

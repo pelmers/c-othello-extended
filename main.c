@@ -48,7 +48,7 @@ int get_human_move(int *board, int side) {
     int i;
     int move;
     char input[32];
-    int flips[24];
+    int flips[19];
     printf("Possible moves: ");
     for(i=11; i<89; ++i) {
         if (legal_move(board,i,side,flips) == 1)
@@ -100,7 +100,7 @@ int main () {
     int wins_b = 0;
     int draws = 0;
     int board[100];
-    int flips[24];
+    int flips[19];
     int randomize = 0;
     int side = BLACK;
     int unplayed = 0;
@@ -175,5 +175,4 @@ int main () {
         printf("Simulated lasted %.3f seconds, %.4f seconds per game.\n",
                 elapsed, elapsed/(double)simulate);
     }
-    return 0;
 }
