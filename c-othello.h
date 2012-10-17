@@ -37,15 +37,15 @@
 // board.c
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
-int legal_move(int *board, int move, int side, int *flips);
-int test_possible_moves(int *board, int side, int *flips);
-int test_end(int *board, int unplayed);
+char legal_move(int *board, int move, int side, int *flips);
+char test_possible_moves(int *board, int side, int *flips);
+char test_end(int *board, int unplayed);
 int find_score(int *board, int side);
 void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
 void copy_board(int *oldboard, int *newboard);
-int play_turn(int *board, int *side, int *unplayed, int show, 
+char play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_soure, int *flips);
 // ai.c
 int evaluate_board(int *board, int side, int unplayed);
