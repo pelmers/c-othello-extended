@@ -92,7 +92,7 @@ void make_move(int *board, int move, int side, int *flips) {
         board[flips[i]] = side;
 }
 
-int legal_move(int *board, int move, int side, int *flips) {
+char legal_move(int *board, int move, int side, int *flips) {
     /* Return 0 if the move is not legal
      * Return 1 if legal
      * Update flips to the flips found in the move
@@ -108,7 +108,7 @@ int legal_move(int *board, int move, int side, int *flips) {
     return 1;
 }
 
-int test_possible_moves(int *board, int side, int *flips) {
+char test_possible_moves(int *board, int side, int *flips) {
     /* Return 1 if there is any possible move for side
      */
     int i;
@@ -121,7 +121,7 @@ int test_possible_moves(int *board, int side, int *flips) {
     return 0;
 }
 
-int test_end(int *board, int unplayed) {
+char test_end(int *board, int unplayed) {
     /* Return 1 if the game has ended
      * conditions: two consecutive unplayed turns or no empty spaces left
      */
@@ -189,7 +189,7 @@ int get_move(int *board, int side, int source, int unplayed) {
 }
 
 
-int play_turn(int *board, int *side, int *unplayed, int show, 
+char play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_source, int *flips) {
     /* Handle the playing of a turn
      * Modifies side and unplayed if necessary
