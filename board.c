@@ -141,7 +141,7 @@ int find_score(int *board, int side) {
      */
     int i = 11;
     int n = 0;
-    for (i=11;i<89;++i) {
+    for (;i<89;++i) {
         if (board[i] == side)
             n++;
     }
