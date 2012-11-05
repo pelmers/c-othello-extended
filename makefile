@@ -1,3 +1,3 @@
-CC = gcc -O3
+CC = g++ -O3
 all:
-	$(CC) all.c -o Othello
+	$(CC) main.c -o Othello

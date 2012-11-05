@@ -1,4 +1,6 @@
 #include "c-othello.h"
+#include "board.c"
+#include "ai.c"
 
 // Peter Elmers, September 2012
 
