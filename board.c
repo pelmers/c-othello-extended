@@ -7,34 +7,7 @@ void reset_flips(int *flips) {
     /* Takes a pointer to flips array as input
      * Return nothing, but reset all flips to 0
      */
-    // unrolled for loop runs faster
-    flips[0] = 0;
-    flips[1] = 0;
-    flips[2] = 0;
-    flips[3] = 0;
-    flips[4] = 0;
-    flips[5] = 0;
-    flips[6] = 0;
-    flips[7] = 0;
-    flips[8] = 0;
-    flips[9] = 0;
-    flips[10] = 0;
-    flips[11] = 0;
-    flips[12] = 0;
-    flips[13] = 0;
-    flips[14] = 0;
-    flips[15] = 0;
-    flips[16] = 0;
-    flips[17] = 0;
-    flips[18] = 0;
-    /*flips[19] = 0;
-    flips[20] = 0;
-    flips[21] = 0;
-    flips[22] = 0;
-    flips[23] = 0;*/
-    //int i;
-    //for (i=0;i<19;++i)
-    //    flips[i] = 0;
+    memset(flips, 0, sizeof(int)*18);
 }
 
 void copy_board(int *oldboard, int *newboard) {
@@ -43,9 +16,6 @@ void copy_board(int *oldboard, int *newboard) {
      */
     // again, memcpy from memory.h is faster than loop for copying data
     memcpy(newboard, oldboard, 100*sizeof(int));
-    //int i;
-    //for (i=0;i<100;++i)
-    //    newboard[i] = oldboard[i];
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
@@ -158,32 +128,30 @@ int get_move(int *board, int side, int source, int unplayed) {
         return get_random_move(board, side);
     if (source == SHALLOW)
         return get_shallow_move(board, side);
+    // find out how many empty squares are left
+    int i;
+    int count = 0;
+    for (i=11;i<89;++i) {
+        if (board[i] == EMPTY)
+            count++;
+    }
     if (source == MINIMAX) {
-        // find out how many empty squares are left
-        int i;
-        int count = 0;
-        for (i=11;i<89;++i) {
-            if (board[i] == EMPTY)
-                count++;
-        }
         if (count >= END_DEPTH)
             // search to S_DEPTH
             return get_minimax_move(board, side, unplayed, S_DEPTH);
         else
             // search to end of the game
-            return get_minimax_move(board, side, unplayed, count);
+            return (side == BLACK)?
+                get_minimax_move(board, side, unplayed, END_DEPTH)
+                :get_minimax_move(board, side, unplayed, count - 1);
     }
     if (source == ALPHABETA) {
-        int i;
-        int count = 0;
-        for (i=11;i<89;++i) {
-            if (board[i] == EMPTY)
-                count++;
-        }
         if (count >= END_DEPTH)
             return get_alphabeta_move(board, side, unplayed, S_DEPTH);
         else
-            return get_alphabeta_move(board, side, unplayed, count);
+            return (side == BLACK)?
+                get_alphabeta_move(board, side, unplayed, END_DEPTH)
+                :get_alphabeta_move(board, side, unplayed, count - 1);
     }
     return 0;
 }
@@ -277,7 +245,7 @@ void print_board(int *board, int side) {
             }
         }
     }
-    printf("\nCurrent score:\n");
+    printf("\n\nCurrent score:\n");
     printf("Black: %d\nWhite: %d\n",
             find_score(board,BLACK), find_score(board,WHITE));
 }

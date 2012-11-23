@@ -1,3 +1,3 @@
-CC = g++ -O3
+CC = gcc -O3 -funroll-loops -std=c99
 all:
 	$(CC) main.c -o Othello

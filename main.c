@@ -121,7 +121,7 @@ int main () {
     }
 
     if (simulate < 2) {
-        // don't need to run full simulation for just one gamE
+        // don't need to run full simulation for just one game
         default_board(board);
         playing = 1;
         turn_number = 0;
@@ -149,7 +149,7 @@ int main () {
             turn_number = 0;
             playing = 1;
             while (playing) {
-                if (randomize != 0 && turn_number <= 10) {
+                if (randomize != 0 && turn_number++ <= 10) {
                     playing = play_turn(board, &side, &unplayed, 0,
                             RANDOM, RANDOM, flips);
                 }
@@ -157,7 +157,6 @@ int main () {
                     playing = play_turn(board, &side, &unplayed, 0,
                             black_source, white_source, flips);
                 }
-                turn_number++;
             }
             score_w = find_score(board,WHITE);
             score_b = find_score(board,BLACK);

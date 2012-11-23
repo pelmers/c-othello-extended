@@ -41,7 +41,7 @@ char legal_move(int *board, int move, int side, int *flips);
 char test_possible_moves(int *board, int side, int *flips);
 char test_end(int *board, int unplayed);
 int find_score(int *board, int side);
-void reset_flips(int *flips);
+inline void reset_flips(int *flips);
 void empty_board(int *board);
 void default_board(int *board);
 void copy_board(int *oldboard, int *newboard);
