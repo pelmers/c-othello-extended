@@ -7,45 +7,15 @@ void reset_flips(int *flips) {
     /* Takes a pointer to flips array as input
      * Return nothing, but reset all flips to 0
      */
-    // unrolled for loop runs faster
-    flips[0] = 0;
-    flips[1] = 0;
-    flips[2] = 0;
-    flips[3] = 0;
-    flips[4] = 0;
-    flips[5] = 0;
-    flips[6] = 0;
-    flips[7] = 0;
-    flips[8] = 0;
-    flips[9] = 0;
-    flips[10] = 0;
-    flips[11] = 0;
-    flips[12] = 0;
-    flips[13] = 0;
-    flips[14] = 0;
-    flips[15] = 0;
-    flips[16] = 0;
-    flips[17] = 0;
-    flips[18] = 0;
-    /*flips[19] = 0;
-    flips[20] = 0;
-    flips[21] = 0;
-    flips[22] = 0;
-    flips[23] = 0;*/
-    //int i;
-    //for (i=0;i<19;++i)
-    //    flips[i] = 0;
+    memset(flips, 0, sizeof(int)*20);
 }
 
 void copy_board(int *oldboard, int *newboard) {
     /* Make the array newboard a copy of the array oldboard
      * Return nothing, but modify newboard
      */
-    // again, memcpy from memory.h is faster than loop for copying data
+    // memcpy from memory.h is much faster than loop for copying data
     memcpy(newboard, oldboard, 100*sizeof(int));
-    //int i;
-    //for (i=0;i<100;++i)
-    //    newboard[i] = oldboard[i];
 }
 
 void to_flip(int *board, int move, int side, int *flips) {
@@ -73,6 +43,7 @@ void to_flip(int *board, int move, int side, int *flips) {
                 new_flips[++n] = next;
             if (board[next] == side) {
                 while (n>=0)
+                    // return in the opposite direction and add flips
                     flips[i++] = new_flips[n--];
                 break;
             }
@@ -84,15 +55,14 @@ void make_move(int *board, int move, int side, int *flips) {
     /* Make a move
      * typically called after legal_move!
      */
-    int i;
     // set a tile at this location
     board[move] = side;
-    for (i=0; flips[i] != 0; ++i)
+    for (int i=0; flips[i] != 0; ++i)
         // flip each position in flips
         board[flips[i]] = side;
 }
 
-int legal_move(int *board, int move, int side, int *flips) {
+char legal_move(int *board, int move, int side, int *flips) {
     /* Return 0 if the move is not legal
      * Return 1 if legal
      * Update flips to the flips found in the move
@@ -108,11 +78,10 @@ int legal_move(int *board, int move, int side, int *flips) {
     return 1;
 }
 
-int test_possible_moves(int *board, int side, int *flips) {
+char test_possible_moves(int *board, int side, int *flips) {
     /* Return 1 if there is any possible move for side
      */
-    int i;
-    for (i=11;i<89;++i) {
+    for (int i=11;i<89;++i) {
         if (legal_move(board, i, side, flips) == 1)
             // if any move on the board is legal, there is a possible move
             return 1;
@@ -121,14 +90,13 @@ int test_possible_moves(int *board, int side, int *flips) {
     return 0;
 }
 
-int test_end(int *board, int unplayed) {
+char test_end(int *board, int unplayed) {
     /* Return 1 if the game has ended
      * conditions: two consecutive unplayed turns or no empty spaces left
      */
-    int i;
     if (unplayed == 2)
         return 1;
-    for (i=11;i<89;++i) {
+    for (int i=11;i<89;++i) {
         if (board[i] == EMPTY)
             // game hasn't ended if there is any empty square
             return 0;
@@ -139,9 +107,12 @@ int test_end(int *board, int unplayed) {
 int find_score(int *board, int side) {
     /* Return the number of tiles a side has
      */
-    int i = 11;
     int n = 0;
+<<<<<<< HEAD
     for (;i<89;++i) {
+=======
+    for (int i=11;i<89;++i) {
+>>>>>>> unstable
         if (board[i] == side)
             n++;
     }
@@ -158,38 +129,35 @@ int get_move(int *board, int side, int source, int unplayed) {
         return get_random_move(board, side);
     if (source == SHALLOW)
         return get_shallow_move(board, side);
+    // find out how many empty squares are left
+    int count = 0;
+    for (int i=11;i<89;++i) {
+        if (board[i] == EMPTY)
+            count++;
+    }
     if (source == MINIMAX) {
-        // find out how many empty squares are left
-        int i;
-        int count = 0;
-        for (i=11;i<89;++i) {
-            if (board[i] == EMPTY)
-                count++;
-        }
         if (count >= END_DEPTH)
             // search to S_DEPTH
             return get_minimax_move(board, side, unplayed, S_DEPTH);
         else
             // search to end of the game
-            return get_minimax_move(board, side, unplayed, count);
+            return (side == BLACK)?
+                get_minimax_move(board, side, unplayed, END_DEPTH)
+                :get_minimax_move(board, side, unplayed, count - 1);
     }
     if (source == ALPHABETA) {
-        int i;
-        int count = 0;
-        for (i=11;i<89;++i) {
-            if (board[i] == EMPTY)
-                count++;
-        }
         if (count >= END_DEPTH)
             return get_alphabeta_move(board, side, unplayed, S_DEPTH);
         else
-            return get_alphabeta_move(board, side, unplayed, count);
+            return (side == BLACK)?
+                get_alphabeta_move(board, side, unplayed, END_DEPTH)
+                :get_alphabeta_move(board, side, unplayed, count - 1);
     }
     return 0;
 }
 
 
-int play_turn(int *board, int *side, int *unplayed, int show, 
+char play_turn(int *board, int *side, int *unplayed, int show, 
         int black_source, int white_source, int *flips) {
     /* Handle the playing of a turn
      * Modifies side and unplayed if necessary
@@ -220,28 +188,20 @@ int play_turn(int *board, int *side, int *unplayed, int show,
     return 1;
 }
 
-void empty_board(int *board) {
-    /* Make array board an empty board
-     * Empty board contains only EMPTY and BORDER squares
-     */
-    int i;
-    for (i=100; i>0; --i) {
-        if (i % 10 == 9 || i % 10 == 0 || i < 9 || i>90) {
-            board[i] = BORDER;
-        }
-        else {
-            board[i] = EMPTY;
-        }
-    }
-}
-
 void default_board(int *board) {
-    /* Empty the board and then set default starting positions
+    /* Empty the board and set default starting positions
      */
-    empty_board(board);
-    // set starting locations
-    board[44] = board[55] = WHITE;
-    board[45] = board[54] = BLACK;
+    copy_board((int[]){
+        2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  0,  0,  0,  1, -1,  0,  0,  0,  2,
+        2,  0,  0,  0, -1,  1,  0,  0,  0,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  0,  0,  0,  0,  0,  0,  0,  0,  2,
+        2,  2,  2,  2,  2,  2,  2,  2,  2,  2}, board);
 }
 
 void print_board(int *board, int side) {
@@ -249,13 +209,12 @@ void print_board(int *board, int side) {
      * Includes row and column markers
      * Also indicates possible playing positions and current scores
      */
-    int i;
-    int flips[19];
+    int flips[20];
     if (side == BLACK)
         printf("Currently black's turn to play");
     else printf("Currently white's turn to play");
     printf("\n\t");
-    for(i=1; i<89; ++i) {
+    for(int i=1; i<89; ++i) {
         if (i <= 8)
             printf("%d   ",i);
         else if (i % 10 == 0)
@@ -277,7 +236,7 @@ void print_board(int *board, int side) {
             }
         }
     }
-    printf("\nCurrent score:\n");
+    printf("\n\nCurrent score:\n");
     printf("Black: %d\nWhite: %d\n",
             find_score(board,BLACK), find_score(board,WHITE));
 }

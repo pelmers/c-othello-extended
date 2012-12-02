@@ -31,12 +31,11 @@ int get_random_move(int *board, int side) {
     /* Randomly pick a move!
      * Mostly used for simulating other AI algorithms
      */
-    int i;
     int move;
     int counter = 0;
     int possible_moves[64];
-    int flips[24];
-    for(i=11; i<89; ++i) {
+    int flips[20];
+    for(int i=11; i<89; ++i) {
         if (legal_move(board,i,side,flips)) {
             possible_moves[counter] = i;
             counter++;
@@ -81,7 +80,7 @@ int get_shallow_move(int *board, int side) {
     int i;
     int move = 0;
     int score;
-    int flips[24];
+    int flips[20];
     int old_board[100];
     int best_score = MIN_SCORE;
     // backup the existing board
@@ -109,15 +108,14 @@ int maximize(int *board, int side, int unplayed, int ply) {
      * Search with mutual recursion to depth ply 
      */
     int old_board[100];
-    int flips[24];
-    int i;
+    int flips[20];
     int score = MIN_SCORE;
     if (ply == 0 || test_end(board, unplayed) == 1)
         // either reached end of search or game is over, so return
         return evaluate_board(board, side, unplayed);
     // backup the current playing board
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -134,13 +132,12 @@ int minimize(int *board, int side, int unplayed, int ply) {
      * Return the lowest score found
      */
     int old_board[100];
-    int flips[24];
-    int i;
+    int flips[20];
     int score = MAX_SCORE;
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -155,14 +152,13 @@ int minimize(int *board, int side, int unplayed, int ply) {
 int get_minimax_move(int *board, int side, int unplayed, int ply) {
     /* Similar to maximize(), but return move instead of score
      */
-    int i;
     int score;
     int best_move = 0;
-    int flips[24];
+    int flips[20];
     int old_board[100];
     int best_score = MIN_SCORE-2;
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -182,12 +178,11 @@ int ab_maximize(int *board, int side, int unplayed, int ply, int a,int b) {
      * Cuts off search using a and b parameters if possible
      */
     int old_board[100];
-    int flips[24];
-    int i;
+    int flips[20];
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -206,12 +201,11 @@ int ab_minimize(int *board, int side, int unplayed, int ply,int a, int b) {
      * Cut off with a and b when possible
      */
     int old_board[100];
-    int flips[24];
-    int i;
+    int flips[20];
     if (ply == 0 || test_end(board, unplayed) == 1)
         return evaluate_board(board, side, unplayed);
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);
@@ -227,14 +221,13 @@ int get_alphabeta_move(int *board, int side, int unplayed, int ply) {
     /* Return best move using alphabeta search to ply depth
      * Similar to ab_maximize, but finds move instead of score
      */
-    int i;
     int score;
     int best_move = 0;
-    int flips[24];
+    int flips[20];
     int old_board[100];
     int best_score = MIN_SCORE-1;
     copy_board(board, old_board);
-    for (i=11; i<89; ++i) {
+    for (int i=11; i<89; ++i) {
         if (legal_move(board, i, side, flips) == 0)
             continue;
         make_move(board, i, side, flips);

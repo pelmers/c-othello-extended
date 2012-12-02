@@ -1,4 +1,6 @@
 #include "c-othello.h"
+#include "board.c"
+#include "ai.c"
 
 // Peter Elmers, September 2012
 
@@ -45,17 +47,16 @@ int get_randomize() {
 int get_human_move(int *board, int side) {
     /* Return human move based on input
      */
-    int i;
     int move;
     char input[32];
-    int flips[19];
+    int flips[20];
     printf("Possible moves: ");
-    for(i=11; i<89; ++i) {
+    for(int i=11; i<89; ++i) {
         if (legal_move(board,i,side,flips) == 1)
             printf(" %d",i);
     }
     printf("\n");
-    for (;;) {
+    for ever {
         printf("Enter your move (sum of row and column): ");
         scanf("%s",input);
         move = atoi(input);
@@ -74,21 +75,20 @@ int get_human_move(int *board, int side) {
 void progress_bar(int width, int percent) {
     /* Print a progress bar using width of screen and perecentage filled
      */
+    int i;
     int filled;
-    int i = 0;
     width -= 9;
     filled = width*percent/100;
     printf("\r[ ");
     for(i=0;i < filled; ++i)
         printf("#");
-    for(i=i;i < (width-1); ++i)
+    while((i++) < width)
         printf("-");
     printf(" ] %d%%", percent);
 }
 
 
 int main () {
-    int i;
     clock_t start;
     clock_t end;
     double elapsed;
@@ -100,7 +100,7 @@ int main () {
     int wins_b = 0;
     int draws = 0;
     int board[100];
-    int flips[19];
+    int flips[20];
     int randomize = 0;
     int side = BLACK;
     int unplayed = 0;
@@ -119,7 +119,7 @@ int main () {
     }
 
     if (simulate < 2) {
-        // don't need to run full simulation for just one gamE
+        // don't need to run full simulation for just one game
         default_board(board);
         playing = 1;
         turn_number = 0;
@@ -135,7 +135,7 @@ int main () {
     else {
         int percent = 0, old_percent = 0;
         start = clock();
-        for(i=0;i<simulate;++i) {
+        for(int i=0;i<simulate;++i) {
             percent = i*100/simulate;
             if (percent > old_percent) {
                 progress_bar(SCR_WIDTH,percent);
@@ -147,7 +147,7 @@ int main () {
             turn_number = 0;
             playing = 1;
             while (playing) {
-                if (randomize != 0 && turn_number <= 10) {
+                if (randomize != 0 && turn_number++ <= 10) {
                     playing = play_turn(board, &side, &unplayed, 0,
                             RANDOM, RANDOM, flips);
                 }
@@ -155,7 +155,6 @@ int main () {
                     playing = play_turn(board, &side, &unplayed, 0,
                             black_source, white_source, flips);
                 }
-                turn_number++;
             }
             score_w = find_score(board,WHITE);
             score_b = find_score(board,BLACK);
