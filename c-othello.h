@@ -34,6 +34,9 @@
 #define MAX(a, b) (((a) + (b) + abs((a) - (b))) * 0.5)
 #define MIN(a, b) (((a) + (b) - abs((a) - (b))) * 0.5)
 
+// for ever loops!
+#define ever (;;)
+
 // board.c
 void to_flip(int *board, int move, int side, int *flips);
 void make_move(int *board, int move, int side, int *flips);
@@ -70,5 +73,6 @@ void progress_bar(int width, int percent);
 
 extern const int directions[8];
 extern const int weights[100];
+
 
 #endif
